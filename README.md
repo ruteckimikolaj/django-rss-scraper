@@ -31,7 +31,7 @@
 
 ## Getting started
 
-- Clone the repo: `git clone ` + this repository url
+- Clone the repo: `git clone https://github.com/ruteckimikolaj/django-rss-scraper.git`
 
 Assuming you have docker and docker-compose installed on your computer:
 
