@@ -1,4 +1,6 @@
-![Djago RSS Scraper](https://github.com/ruteckimikolaj/django-rss-scraper/workflows/Djago%20RSS%20Scraper/badge.svg?event=push) [![codecov](https://codecov.io/gh/ruteckimikolaj/django-rss-scraper/branch/master/graph/badge.svg?token=Gp1I5e7oWQ)](undefined) [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg?token=Gp1I5e7oWQ)](https://github.com/psf/black)
+![Djago RSS Scraper](https://github.com/ruteckimikolaj/django-rss-scraper/workflows/Djago%20RSS%20Scraper/badge.svg?event=push)
+[![codecov](https://codecov.io/gh/ruteckimikolaj/django-rss-scraper/branch/master/graph/badge.svg)](https://codecov.io/gh/ruteckimikolaj/django-rss-scraper)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg?token=Gp1I5e7oWQ)](https://github.com/psf/black)
 
 # django_rss_scraper
  simple RSS scraper application which saves RSS feeds to a database and lets a user view and manage feeds they’ve added to the system through an API.
