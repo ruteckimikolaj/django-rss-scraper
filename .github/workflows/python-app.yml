@@ -71,3 +71,8 @@ jobs:
       run: coverage run manage.py test
     - name: Coverage report
       run: coverage report --skip-empty --rcfile=setup.cfg
+    - name: Upload coverage reports to Codecov
+      env:
+        super_secret: ${{ secrets.CODECOV_TOKEN }}
+      run: |
+        codecov -t ${{ secrets.CODECOV_TOKEN }}
