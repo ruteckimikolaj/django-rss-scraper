@@ -113,11 +113,6 @@ class Feed(TimestampedMixin, RSSMixin):
     def __str__(self):
         return f"{self.source.name} feed"
 
-    def check_update_date(self, update_date):
-        if (self.published and update_date > self.published) or (self.modified and update_date > self.modified):
-            return True
-        return False
-
     def _create_entry_data(self, aggregated_data):
         result = {
             "feed_id": self.id,

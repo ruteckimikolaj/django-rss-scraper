@@ -2,7 +2,7 @@ from unittest import mock
 
 import pytz
 from django.contrib.auth.models import User
-from django.test import TestCase, override_settings
+from django.test import TestCase
 from django.utils import timezone
 from django_celery_beat.models import IntervalSchedule
 

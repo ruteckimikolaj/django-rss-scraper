@@ -69,7 +69,7 @@ class FeedViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, GenericViewS
         "summary": ["icontains"],
     }
 
-    @action(detail=True, methods=["get"], name="Feed entries raw data", url_name="raw-data")
+    @action(detail=True, methods=["get"], name="Feed entries raw data", url_name="entries")
     def entries(self, request, pk=None):
         obj = self.get_object()
         serializer = RawEntriesSetSerializer(data=request.data)
@@ -97,6 +97,7 @@ class FeedEntryViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, Generic
         "summary": ["icontains"],
         "author": ["icontains"],
     }
+    ordering_fields = ["id"]
 
     @action(detail=True, methods=["get"], name="Has been read", url_name="read")
     def read(self, request, pk=None):
@@ -104,10 +105,10 @@ class FeedEntryViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, Generic
         serializer = FeedEntriesSetSerializer(data=request.data)
         if serializer.is_valid():
             if obj.read:
-                return Response(f"{obj} HAS ALREADY BEEN FLAGGED. read = {obj.read}")
+                return Response({"message": f"{obj} HAS ALREADY BEEN FLAGGED.", "read": obj.read}, status=202)
             obj.read = True
             obj.save()
-            return Response(f"YOU FLAGGED {obj} as read. read = {obj.read}")
+            return Response({"message": f"YOU FLAGGED {obj} as read.", "read": obj.read}, status=202)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -117,10 +118,10 @@ class FeedEntryViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, Generic
         serializer = FeedEntriesSetSerializer(data=request.data)
         if serializer.is_valid():
             if not obj.read:
-                return Response(f"{obj} HAS ALREADY BEEN FLAGGED. read = {obj.read}")
+                return Response({"message": f"{obj} HAS ALREADY BEEN FLAGGED.", "read": obj.read}, status=202)
             obj.read = False
             obj.save()
-            return Response(f"{obj} HAS BEEN RESTORED. read = {obj.read}")
+            return Response({"message": f"{obj} HAS BEEN RESTORED.", "read": obj.read}, status=202)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

@@ -3,7 +3,7 @@ from unittest import mock
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 
-from feeds.models import Source
+from feeds.models import Feed, FeedEntry, Source
 from feeds.tests import BaseTestCase
 
 
@@ -112,3 +112,68 @@ class SourceViewsTestCase(APITestCase, BaseTestCase):
                 "last_update": source.updated_at,
             },
         )
+
+
+class FeedsViewsTestCase(APITestCase, BaseTestCase):
+    def setUp(self) -> None:
+        super(FeedsViewsTestCase, self).setUp()
+        self.client.force_login(self.user)
+
+        self.url_list = reverse("feeds-list")
+
+    @mock.patch("feeds.models.Source.aggregated_data", new_callable=mock.PropertyMock)
+    def test_feeds_view_users(self, mock_aggregated_data):
+        # mock methods to accept data from file not from url
+        mock_aggregated_data.return_value = self.aggregated_data
+        post_data = self.create_source_data(fetch_interval=self.first_interval.id, user="")
+
+        # POST data to create new Source instance
+        self.client.post(reverse("sources-list"), post_data)
+
+        response = self.client.get(self.url_list)
+        self.assertEqual(response.status_code, 200)
+        feed = Feed.objects.get(source__user=self.user)
+        self.assertEqual(self.user, feed.source.user)
+
+        # GET raw data entries
+        response_entries = self.client.get(reverse("feeds-entries", args=[feed.id]))
+        self.assertEqual(response_entries.data, feed.entries)
+
+
+class FeedsEntriesViewsTestCase(APITestCase, BaseTestCase):
+    def setUp(self) -> None:
+        super(FeedsEntriesViewsTestCase, self).setUp()
+        self.client.force_login(self.user)
+        self.url_list = reverse("feed-entries-list")
+
+    @mock.patch("feeds.models.Source.aggregated_data", new_callable=mock.PropertyMock)
+    def test_feed_entries_view_users(self, mock_aggregated_data):
+        # mock methods to accept data from file not from url
+        mock_aggregated_data.return_value = self.aggregated_data
+        post_data = self.create_source_data(fetch_interval=self.first_interval.id, user="")
+
+        # POST data to create new Source instance
+        self.client.post(reverse("sources-list"), post_data)
+
+        response = self.client.get(self.url_list)
+        self.assertEqual(response.status_code, 200)
+        feed = Feed.objects.get(source__user=self.user)
+        qs_feed_entries = FeedEntry.objects.filter(feed=feed)
+        feed_entry = qs_feed_entries.first()
+        self.assertTrue(
+            response.renderer_context["view"].get_queryset().count()
+            == qs_feed_entries.select_related("feed", "feed__source").count()
+        )
+        # read entry
+        response_read = self.client.get(reverse("feed-entries-read", args=[feed_entry.id]))
+        feed_entry.refresh_from_db()
+        self.assertTrue(feed_entry.read)
+        self.assertTrue(feed_entry.read == response_read.data["read"])
+        self.assertEqual(response_read.status_code, 202)
+
+        # unread entry
+        response_unread = self.client.get(reverse("feed-entries-unread", args=[feed_entry.id]))
+        feed_entry.refresh_from_db()
+        self.assertFalse(feed_entry.read)
+        self.assertTrue(feed_entry.read == response_unread.data["read"])
+        self.assertEqual(response_unread.status_code, 202)
