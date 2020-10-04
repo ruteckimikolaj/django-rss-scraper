@@ -1,0 +1,58 @@
+version: "3"
+
+services:
+  redis:
+    image: redis:latest
+    ports:
+      - '6379:6379'
+
+  db:
+    env_file:
+      - .env.dist
+    image: postgres:9.6
+    container_name: db
+    ports:
+      - "5432:5432"
+
+  django:
+    env_file:
+      - .env.dist
+    container_name: web
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: django
+    volumes:
+      - .:/var/www/django_rss_scraper
+    ports:
+      - "8000:8000"
+    links:
+      - redis
+      - db
+    depends_on:
+      - worker
+      - db
+
+  worker:
+    env_file:
+      - .env.dist
+    container_name: celery_worker
+    build: .
+    command: celery -A django_rss_scraper worker --loglevel=DEBUG
+    volumes:
+      - .:/var/www/django_rss_scraper
+    links:
+      - redis
+
+  beat:
+    env_file:
+      - .env.dist
+    container_name: celery_beat
+    build: .
+    command: celery -A django_rss_scraper beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    volumes:
+      - .:/var/www/django_rss_scraper
+    links:
+      - db
+    depends_on:
+      - db
