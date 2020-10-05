@@ -14,12 +14,11 @@
     - Mark items as read
     - Filter read/unread feed items per feed and globally (e.g. get all unread items from all feeds or one feed in particular). Order the items by the date of the last update
     - Force a feed update
-- Feeds (and feed items) should be updated asynchronously in the background. We use Dramatiq for Sendcloud tasks, but you may use whichever solution you’re comfortable with (e.g. asyncio, Celery).
+- Feeds (and feed items) should be updated asynchronously in the background.
 - Implement a back-off mechanism for feed fetching
 - If a feed fails to be updated, the system should fall back for a while.
 - After a certain amount of failed tries, the system should stop updating the feed automatically.
 - Users should be notified and able to retry the feed update if it is stalled after these failed tries.
-- Simulate this behaviour in a test case.
 
 
 
